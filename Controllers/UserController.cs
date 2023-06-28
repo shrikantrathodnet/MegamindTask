@@ -39,30 +39,26 @@ namespace EmpTask.Controllers
         [HttpPost]
 
 
-        public ActionResult Create(string Name, string phone, string email, string address, int stateId, int cityId)
+      
+        public ActionResult Create(UserDetail model)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
-                    //Create a new qualification object with the provided Name and Mark
                     UserDetail p = new UserDetail
                     {
-                        Name = Name,
-                        Phone = phone,
-                        Email = email,
-                        Address = address,
-                        StateId = stateId,
-                        CityId = cityId
-
+                        Name = model.Name,
+                        Phone = model.Phone,
+                        Email = model.Email,
+                        Address = model.Address,
+                        StateId = model.StateId,
+                        CityId = model.CityId
                     };
 
-                    //Call the QualCreate method in the business logic layer to create the qualification
                     UserDetailBLL bl = new UserDetailBLL();
                     if (bl.Create(p))
                     {
-                        // Return the created qualification object as JSON to update the textboxes in the AJAX success callback
-                       
                         return RedirectToAction("IndexViewModel");
                     }
                     else
@@ -72,17 +68,16 @@ namespace EmpTask.Controllers
                 }
                 else
                 {
-                    return Json(new { success = false, message = "Model state is not valid." });
+                    var errors = ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage));
+                    return Json(new { success = false, message = "Model state is not valid.", errors = errors });
                 }
-
             }
-
-
             catch (Exception ex)
             {
                 return Json(new { success = false, message = "An error occurred: " + ex.Message });
             }
         }
+
 
 
         [HttpGet]
