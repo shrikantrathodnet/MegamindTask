@@ -5,159 +5,198 @@
     ViewBag.Title = "IndexViewModel";
 }
 
-<head>
-   
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.13/jquery.validate.unobtrusive.min.js"></script>
-</head>
 
+    <head>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
+        <script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
 
-<body>
-    <h2>Add User</h2>
-
-    @using (Html.BeginForm())
-    {
-        @Html.AntiForgeryToken()
-
-        <div class="form-horizontal">
-
-            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-            <div class="form-group">
-                @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "control-label col-md-2" })
-                <div class="col-md-10">
-                    @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control", @id = "Name" } })
-                    @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
-                </div>
-            </div>
-
-            <div class="form-group">
-                @Html.LabelFor(model => model.Email, htmlAttributes: new { @class = "control-label col-md-2" })
-                <div class="col-md-10">
-                    @Html.EditorFor(model => model.Email, new { htmlAttributes = new { @class = "form-control", @id = "Email" } })
-                    @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
-                </div>
-            </div>
-
-            <div class="form-group">
-                @Html.LabelFor(model => model.Phone, htmlAttributes: new { @class = "control-label col-md-2" })
-                <div class="col-md-10">
-                    @Html.EditorFor(model => model.Phone, new { htmlAttributes = new { @class = "form-control", @id = "Phone" } })
-                    @Html.ValidationMessageFor(model => model.Phone, "", new { @class = "text-danger" })
-                </div>
-            </div>
-
-            <div class="form-group mb-4">
-                @Html.LabelFor(model => model.Address, htmlAttributes: new { @class = "control-label col-md-2" })
-                <div class="col-md-10">
-                    @Html.EditorFor(model => model.Address, new { htmlAttributes = new { @class = "form-control" }, @id = "Address" })
-                    @Html.ValidationMessageFor(model => model.Address, "", new { @class = "text-danger" })
-                </div>
-            </div>
-
-            <div class="form-group mb-4">
-                <div class="col-md-12">
-                    @Html.DropDownList("State", null, "--Select State---", new { id = "state", @class = "form-control" }) <!-- Added id and Bootstrap class -->
-                </div>
-            </div>
-
-            <div class="form-group">
-                <div class="col-md-12">
-                    <select id="city" class="form-control">---select----</select> <!-- Added id and Bootstrap class -->
-                </div>
-            </div>
-
-
-
-            <div class="form-group">
-                <div class="col-md-offset-2 col-md-10">
-                    <input type="checkbox" id="agreeCheckbox" onchange="toggleSubmitButton()" style="margin-bottom: 10px;" /> Agree
-                    <br>
-                    <input type="button" value="Submit" id="btnadd" class="btn btn-primary" disabled />
-                </div>
-            </div>
-
-
-
-
-
-            <div>
-                @Html.Action("Index", "User")
-            </div>
-        </div>
-
-    }
-</body>
-
-
-<script>
-
-
-    function toggleSubmitButton() {
-        var agreeCheckbox = document.getElementById("agreeCheckbox");
-        var submitButton = document.getElementById("btnadd");
-
-        // Enable the submit button if the checkbox is checked
-        if (agreeCheckbox.checked) {
-            submitButton.disabled = false;
-        } else {
-            submitButton.disabled = true;
-        }
-    }
-
-    $(document).ready(function () {
-        $("#state").change(function () {
-            var id = $(this).val();
-
-            $("#city").empty();
-            $.get("/User/CityBind", { stateId: id }, function (data) {
-                var v = "<option>---select City ------</option>";
-                $.each(data, function (i, v1) {
-                    v += "<option value='" + v1.Value + "'>" + v1.Text + "</option>";
-                });
-                $("#city").html(v);
-            });
-        });
-    });
-
-
-
-
-$(document).ready(function () {
-
-        $("#btnadd").on('click', function () {
-
-
-            // Collect form data
-            var formData = {
-                Name: $("#Name").val(),
-                email: $("#Email").val(),
-                phone: $("#Phone").val(),
-                address: $("#Address").val(),
-                stateId: $("#state").val(),
-                cityId: $("#city").val()
-
-            };
-            console.log(formData.stateId);
-            console.log(formData.cityId);
-            // Send the Ajax request
-            $.ajax({
-               url: "@Url.Action("Create", "User")",
-                type: "POST",
-                data: formData,
-                success: function (response) {
-                    // Handle the successful response from the server
-                    location.reload();
-                    console.log("User created successfully!");
-                    // Do something with the response, if needed
+        <script>
+        $(document).ready(function () {
+            $("form").validate({
+                rules: {
+                    Name: {
+                        required: true
+                    },
+                    Email: {
+                        required: true,
+                        email: true
+                    },
+                    Phone: {
+                        required: true
+                    },
+                    Address: {
+                        required: true
+                    },
+                    State: {
+                        required: true
+                    },
+                    city: {
+                        required: true
+                    }
                 },
-                error: function (xhr, status, error) {
-                    // Handle errors
-                    console.error("An error occurred while creating the User:", error);
-                }
+                messages: {
+                    Name: {
+                        required: "Please enter a name."
+                    },
+                    Email: {
+                        required: "Please enter an email address.",
+                        email: "Please enter a valid email address."
+                    },
+                    Phone: {
+                        required: "Please enter a phone number."
+                    },
+                    Address: {
+                        required: "Please enter an address."
+                    },
+                    State: {
+                        required: "Please select a state."
+                    },
+                    city: {
+                        required: "Please select a city."
+                    }
+                },
+                errorPlacement: function (error, element) {
+                    error.appendTo(element.closest(".form-group"));
+                },
+                errorElement: "span",
+                errorClass: "text-danger",
+                validClass: "text-success"
+            });
+
+            $("#agreeCheckbox").change(function () {
+                toggleSubmitButton();
             });
         });
-    });
+
+        function toggleSubmitButton() {
+            var allFieldsValid = $("form").valid();
+            var agreeChecked = $("#agreeCheckbox").prop("checked");
+
+            if (allFieldsValid && agreeChecked) {
+                $("#btnadd").prop("disabled", false);
+            } else {
+                $("#btnadd").prop("disabled", true);
+            }
+        }
+
+        $(document).ready(function () {
+            $("#state").change(function () {
+                var id = $(this).val();
+
+                $("#city").empty();
+                $.get("/User/CityBind", { stateId: id }, function (data) {
+                    var v = "<option>---select City ------</option>";
+                    $.each(data, function (i, v1) {
+                        v += "<option value='" + v1.Value + "'>" + v1.Text + "</option>";
+                    });
+                    $("#city").html(v);
+                });
+            });
+        });
+
+        $(document).ready(function () {
+            $("#btnadd").on('click', function () {
+                // Collect form data
+                var formData = {
+                    Name: $("#Name").val(),
+                    email: $("#Email").val(),
+                    phone: $("#Phone").val(),
+                    address: $("#Address").val(),
+                    stateId: $("#state").val(),
+                    cityId: $("#city").val()
+                };
+
+                // Send the Ajax request
+                $.ajax({
+                    url: "@Url.Action("Create", "User")",
+                    type: "POST",
+                    data: formData,
+                    success: function (response) {
+                        // Handle the successful response from the server
+                        location.reload();
+                        console.log("User created successfully!");
+                        // Do something with the response, if needed
+                    },
+                    error: function (xhr, status, error) {
+                        // Handle errors
+                        console.error("An error occurred while creating the User:", error);
+                    }
+                });
+            });
+        });
+        </script>
+
+    </head>
 
 
-</script>
+    <body>
+        <h2>Add User</h2>
+
+        @using (Html.BeginForm())
+        {
+            @Html.AntiForgeryToken()
+
+            <div class="form-horizontal">
+
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control", @id = "Name" } })
+                        @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Email, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.Email, new { htmlAttributes = new { @class = "form-control", @id = "Email" } })
+                        @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Phone, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.Phone, new { htmlAttributes = new { @class = "form-control", @id = "Phone" } })
+                        @Html.ValidationMessageFor(model => model.Phone, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group mb-4">
+                    @Html.LabelFor(model => model.Address, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.Address, new { htmlAttributes = new { @class = "form-control" }, @id = "Address" })
+                        @Html.ValidationMessageFor(model => model.Address, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group mb-4">
+                    <div class="col-md-12">
+                        @Html.DropDownList("State", null, "--Select State---", new { id = "state", @class = "form-control" }) <!-- Added id and Bootstrap class -->
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-12">
+                        <select id="city" class="form-control">---select----</select> <!-- Added id and Bootstrap class -->
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+                        <input type="checkbox" id="agreeCheckbox" style="margin-bottom: 10px;" /> Agree
+                        <br>
+                        <input type="button" value="Submit" id="btnadd" class="btn btn-primary" disabled />
+                    </div>
+                </div>
+
+                <div>
+                    @Html.Action("Index", "User")
+                </div>
+            </div>
+        }
+
+    </body>
+
