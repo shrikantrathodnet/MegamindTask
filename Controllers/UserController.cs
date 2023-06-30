@@ -102,15 +102,6 @@ namespace EmpTask.Controllers
             return View(userDetail);
         }
 
-        [HttpGet]
-        [ActionName("Delete")]
-        public ActionResult Delete_Get(int Id)
-        {
-            UserDetailBLL bl = new UserDetailBLL();
-            UserDetail p = bl.DetailsById(Id);
-            return View(p);
-        }
-
 
         [HttpPost]
         [ActionName("Delete")]
@@ -119,11 +110,12 @@ namespace EmpTask.Controllers
             UserDetailBLL bl = new UserDetailBLL();
             if (bl.Delete(Id))
             {
-                return RedirectToAction("IndexViewModel");
+                return Json(new { redirect = Url.Action("IndexViewModel", "User") }); // Return JSON response with redirect URL
             }
             UserDetail p = bl.DetailsById(Id);
             return View(p);
         }
+
 
         [HttpGet]
         public ActionResult Details(int id)
